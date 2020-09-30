@@ -5,15 +5,15 @@ class Search
     public static function getResponse($uri, $method)
     {
         $uri = explode('?', $uri);
-
         $keyword = substr($uri[1], 0, strpos($uri[1], '='));
-        if ($keyword != 'keyword') {
-            return ['O parâmetro keyword é obrigatório.', 422];
+
+        if (!isset($uri[1]) || $keyword != 'keyword') {
+            Http::_422('O parâmetro keyword é obrigatório.');
         }
 
         $parameter = substr($uri[1], strpos($uri[1], '=') + 1);
         if (strlen($parameter) < 3) {
-            return ['O parâmetro keyword deve conter no mínimo três caracteres.', 422];
+            Http::_422('O parâmetro keyword deve conter no mínimo três caracteres.');
         }
 
         /* parei aqui */

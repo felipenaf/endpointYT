@@ -15,14 +15,17 @@ class Route
 
     public function redirect($method)
     {
-        $endpoint = substr($this->uri, 0, strpos($this->uri, '?'));
+        $endpoint = $this->uri;
+        if (strpos($this->uri, '?')) {
+            $endpoint = substr($this->uri, 0, strpos($this->uri, '?'));
+        }
 
         switch ($endpoint) {
             case 'search':
                 return Search::getResponse($this->uri, $method);
                 break;
             default:
-                return ['', 404];
+                Http::_404();
                 break;
         }
     }
