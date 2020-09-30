@@ -7,16 +7,19 @@ class Route
     public function __construct($uri)
     {
         $route = explode("/", $uri);
-        $route = array_diff($route, array('endpointYT'));
+        $route = array_diff($route, ['', 'endpointYT']);
+        $route = array_values($route);
 
-        $this->uri = array_values($route);
+        $this->uri = !empty($route) ? $route[0] : [null];
     }
 
     public function redirect($method)
     {
-        switch ($this->uri[1]) {
+        $endpoint = substr($this->uri, 0, strpos($this->uri, '?'));
+
+        switch ($endpoint) {
             case 'search':
-                require_once($_SERVER['DOCUMENT_ROOT'] . 'endpointYT/frontend/index.php');
+                return Search::getResponse($this->uri, $method);
                 break;
             default:
                 return ['', 404];
