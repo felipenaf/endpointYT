@@ -44,18 +44,30 @@ class Search
     {
         switch ($method) {
             case 'GET':
-                /* parei aqui */
-                if (!empty($parameter)) {
-                    if (is_numeric($parameter)) {
-                        return $userController->getById($parameter);
-                    }
 
-                    return [null, 400];
-                } else {
-                    return $userController->getAll();
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                  CURLOPT_URL => "https://www.googleapis.com/youtube/v3/search?key=AIzaSyC0cg9KQgSg4oYeQLBrCnn60J1nQLRYoZc&maxResults=10&part=snippet&chart=mostPopular&q=php",
+                  CURLOPT_RETURNTRANSFER => true,
+                  CURLOPT_ENCODING => "",
+                  CURLOPT_MAXREDIRS => 10,
+                  CURLOPT_TIMEOUT => 0,
+                  CURLOPT_FOLLOWLOCATION => true,
+                  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                  CURLOPT_CUSTOMREQUEST => "GET",
+                ));
+
+                $response = curl_exec($curl);
+                curl_close($curl);
+
+                $tt = json_decode($response, true);
+
+                if ($tt['error']) {
+                    Http::response($tt['error']['code'], $tt['error']['message']);
                 }
 
-                return [null, 404];
+                /* parei aqui */
+                Http::_200($response);
             break;
 
             default:

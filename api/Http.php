@@ -15,4 +15,12 @@ class Http
         die;
     }
 
+    public static function _200($message)
+    {
+        echo $message;
+        http_response_code(200);
+
+        die;
+    }
+
 }
