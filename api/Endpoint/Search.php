@@ -14,27 +14,35 @@ class Search
 
         $uri = explode('?', $uri);
 
-        foreach ($uri as $key => $stringParameter) {
+        foreach ($uri as $key => $wholeParameter) {
             if ($key == 0) {
                 continue;
             }
 
-            $parameter = substr($stringParameter, 0, strpos($stringParameter, '='));
+            foreach (explode('&', $wholeParameter) as $stringParameter) {
+                $parameterValue = substr($stringParameter, strpos($stringParameter, '=') + 1);
+                if (strlen($parameterValue) == 0) {
+                    Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
+                }
 
-            if (!in_array($parameter, $this->mandatoryParameters)) {
-                Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
+                $parameter = substr($stringParameter, 0, strpos($stringParameter, '='));
+
+                if (strlen($parameterValue) < 3 && $parameter == 'q') {
+                    Http::response(422, 'O parâmetro "q" deve conter no mínimo três caracteres.');
+                }
+
+                if (in_array($parameter, $this->mandatoryParameters)) {
+                    $pos = array_search($parameter, $this->mandatoryParameters);
+                    unset($this->mandatoryParameters[$pos]);
+                }
+
+                $this->parameters[$parameter] = $parameterValue;
             }
 
-            $parameterValue = substr($stringParameter, strpos($stringParameter, '=') + 1);
-            if (strlen($parameterValue) == 0) {
-                Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
-            }
+        }
 
-            if (strlen($parameterValue) < 3 && $parameter == 'q') {
-                Http::response(422, 'O parâmetro "q" deve conter no mínimo três caracteres.');
-            }
-
-            $this->parameters[$parameter] = $parameterValue;
+        if (!empty($this->mandatoryParameters)) {
+            Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
         }
 
         $this->uri = implode('?', $uri);
@@ -64,8 +72,14 @@ class Search
 
                     if (isset($item['id']['videoId'])) {
                         $arrayResponse['videoId'] = $item['id']['videoId'];
-                    } else {
+                    }
+
+                    if (isset($item['id']['channelId'])) {
                         $arrayResponse['channelId'] = $item['id']['channelId'];
+                    }
+
+                    if (isset($item['id']['playlistId'])) {
+                        $arrayResponse['playlistId'] = $item['id']['playlistId'];
                     }
 
                     $arrayResponse['title'] = $snippet['title'];
