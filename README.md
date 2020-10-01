@@ -37,12 +37,12 @@ Uma api de endpoint único, com a objetivo de listar os dez vídeos mais popular
     | channelId |string| não | não |
 
     Endpoints válidos:
-    `search?q=php`
-    `search?q=focus&channelId=UC1bjWVLp2aaJmPcNbi9OOsw`
+    `GET search?q=php`
+    `GET search?q=focus&channelId=UC1bjWVLp2aaJmPcNbi9OOsw`
 
     Endpoints inválidos:
-    `search?channelId=UC1bjWVLp2aaJmPcNbi9OOsw`
-    `search?q=ph`
+    `GET search?channelId=UC1bjWVLp2aaJmPcNbi9OOsw`
+    `GET search?q=ph`
 - #### 3. Testes unitários
 ```
     $ ./vendor/bin/phpunit tests
