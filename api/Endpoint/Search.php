@@ -8,17 +8,16 @@ class Search
 
     public function getResponse($method, $uri)
     {
-        $notValid = $this->validate($uri);
-
-        if (!empty($notValid)) {
-            return $notValid;
-        }
-
         switch ($method) {
             case 'GET':
+                $notValid = $this->validate($uri);
+
+                if (!empty($notValid)) {
+                    return $notValid;
+                }
+
                 $youtube = new Youtube();
                 $response = $youtube->search($this->parameters);
-                $tt = http_response_code();
 
                 if (isset($response['error'])) {
                     return [$response['error']['code'], $response['error']['message']];
@@ -107,6 +106,11 @@ class Search
         }
 
         $this->uri = implode('?', $uri);
+    }
+
+    public function getMandatoryParameters()
+    {
+        return implode(',', $this->mandatoryParameters);
     }
 
 }
