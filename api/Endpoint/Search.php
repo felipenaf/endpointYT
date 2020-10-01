@@ -2,27 +2,49 @@
 
 class Search
 {
-    public static function getResponse($uri, $method)
+    private $mandatoryParameters = ['keyword'];
+    private $uri;
+    private $parameters = [];
+
+    public function __construct($uri)
     {
+        if (!strpos($uri, '?')) {
+            Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
+        }
+
         $uri = explode('?', $uri);
-        $keyword = substr($uri[1], 0, strpos($uri[1], '='));
 
-        if (!isset($uri[1]) || $keyword != 'keyword') {
-            Http::_422('O parâmetro keyword é obrigatório.');
+        foreach ($uri as $key => $stringParameter) {
+            if ($key == 0) {
+                continue;
+            }
+
+            $parameter = substr($stringParameter, 0, strpos($stringParameter, '='));
+
+            if (!in_array($parameter, $this->mandatoryParameters)) {
+                Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
+            }
+
+            $parameterValue = substr($stringParameter, strpos($stringParameter, '=') + 1);
+            if (strlen($parameterValue) == 0) {
+                Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
+            }
+
+            if (strlen($parameterValue) < 3 && $parameter == 'keyword') {
+                Http::response(422, 'O parâmetro keyword deve conter no mínimo três caracteres.');
+            }
+
+            $this->parameters[$parameter] = $parameterValue;
         }
 
-        $parameter = substr($uri[1], strpos($uri[1], '=') + 1);
-        if (strlen($parameter) < 3) {
-            Http::_422('O parâmetro keyword deve conter no mínimo três caracteres.');
-        }
+        $this->uri = implode('?', $uri);
+    }
 
-        /* parei aqui */
-
-        $parameter = isset($uri[1]) ? $uri[1] : '';
-        $secondParameter = isset($uri[2]) ? $uri[2] : '';
-
+    public function getResponse($method)
+    {
         switch ($method) {
             case 'GET':
+                /* parei aqui */
                 if (!empty($parameter)) {
                     if (is_numeric($parameter)) {
                         return $userController->getById($parameter);
@@ -37,7 +59,7 @@ class Search
             break;
 
             default:
-                return [null, 405];
+                Http::response(405);
             break;
         }
     }

@@ -2,29 +2,17 @@
 
 class Http
 {
-    public static function _404($message = '')
+    public static function response($code, $message = '')
     {
         if ($message) {
             echo json_encode([
-                'status' => 404,
+                'status' => $code,
                 'data' => $message
             ]);
         }
 
-        http_response_code(404);
+        http_response_code($code);
         die;
     }
 
-    public static function _422($message = '')
-    {
-        if ($message) {
-            echo json_encode([
-                'status' => 402,
-                'data' => $message
-            ]);
-        }
-
-        http_response_code(402);
-        die;
-    }
 }
