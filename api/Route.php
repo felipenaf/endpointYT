@@ -24,10 +24,10 @@ class Route
         switch ($endpoint) {
             case 'search':
                 $search = new Search($this->uri);
-                $search->getResponse($method);
+                return $search->getResponse($method);
                 break;
             default:
-                Http::response(404);
+                return [404];
                 break;
         }
     }

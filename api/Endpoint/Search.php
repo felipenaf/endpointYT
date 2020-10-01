@@ -9,7 +9,7 @@ class Search
     public function __construct($uri)
     {
         if (!strpos($uri, '?')) {
-            Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
+            return [422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.'];
         }
 
         $uri = explode('?', $uri);
@@ -22,13 +22,13 @@ class Search
             foreach (explode('&', $wholeParameter) as $stringParameter) {
                 $parameterValue = substr($stringParameter, strpos($stringParameter, '=') + 1);
                 if (strlen($parameterValue) == 0) {
-                    Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
+                    return [422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.'];
                 }
 
                 $parameter = substr($stringParameter, 0, strpos($stringParameter, '='));
 
                 if (strlen($parameterValue) < 3 && $parameter == 'q') {
-                    Http::response(422, 'O parâmetro "q" deve conter no mínimo três caracteres.');
+                    return [422, 'O parâmetro "q" deve conter no mínimo três caracteres.'];
                 }
 
                 if (in_array($parameter, $this->mandatoryParameters)) {
@@ -42,7 +42,7 @@ class Search
         }
 
         if (!empty($this->mandatoryParameters)) {
-            Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
+            return [422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.'];
         }
 
         $this->uri = implode('?', $uri);
@@ -57,11 +57,11 @@ class Search
                 $tt = http_response_code();
 
                 if (isset($response['error'])) {
-                    Http::response($response['error']['code'], $response['error']['message']);
+                    return [$response['error']['code'], $response['error']['message']];
                 }
 
                 if (empty($response['items'])) {
-                    Http::response(204);
+                    return [204];
                 }
 
                 $newResponse = [];
@@ -94,11 +94,11 @@ class Search
                     array_push($newResponse, $arrayResponse);
                 }
 
-                Http::response(200, $newResponse);
+                return [200, $newResponse];
             break;
 
             default:
-                Http::response(405);
+                return [405];
             break;
         }
     }
