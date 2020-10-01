@@ -6,50 +6,14 @@ class Search
     private $uri;
     private $parameters = [];
 
-    public function __construct($uri)
+    public function getResponse($method, $uri)
     {
-        if (!strpos($uri, '?')) {
-            return [422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.'];
+        $notValid = $this->validate($uri);
+
+        if (!empty($notValid)) {
+            return $notValid;
         }
 
-        $uri = explode('?', $uri);
-
-        foreach ($uri as $key => $wholeParameter) {
-            if ($key == 0) {
-                continue;
-            }
-
-            foreach (explode('&', $wholeParameter) as $stringParameter) {
-                $parameterValue = substr($stringParameter, strpos($stringParameter, '=') + 1);
-                if (strlen($parameterValue) == 0) {
-                    return [422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.'];
-                }
-
-                $parameter = substr($stringParameter, 0, strpos($stringParameter, '='));
-
-                if (strlen($parameterValue) < 3 && $parameter == 'q') {
-                    return [422, 'O parâmetro "q" deve conter no mínimo três caracteres.'];
-                }
-
-                if (in_array($parameter, $this->mandatoryParameters)) {
-                    $pos = array_search($parameter, $this->mandatoryParameters);
-                    unset($this->mandatoryParameters[$pos]);
-                }
-
-                $this->parameters[$parameter] = $parameterValue;
-            }
-
-        }
-
-        if (!empty($this->mandatoryParameters)) {
-            return [422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.'];
-        }
-
-        $this->uri = implode('?', $uri);
-    }
-
-    public function getResponse($method)
-    {
         switch ($method) {
             case 'GET':
                 $youtube = new Youtube();
@@ -102,4 +66,47 @@ class Search
             break;
         }
     }
+
+    private function validate($uri)
+    {
+        if (!strpos($uri, '?')) {
+            return [422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.'];
+        }
+
+        $uri = explode('?', $uri);
+
+        foreach ($uri as $key => $wholeParameter) {
+            if ($key == 0) {
+                continue;
+            }
+
+            foreach (explode('&', $wholeParameter) as $stringParameter) {
+                $parameterValue = substr($stringParameter, strpos($stringParameter, '=') + 1);
+                if (strlen($parameterValue) == 0) {
+                    return [422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.'];
+                }
+
+                $parameter = substr($stringParameter, 0, strpos($stringParameter, '='));
+
+                if (strlen($parameterValue) < 3 && $parameter == 'q') {
+                    return [422, 'O parâmetro "q" deve conter no mínimo três caracteres.'];
+                }
+
+                if (in_array($parameter, $this->mandatoryParameters)) {
+                    $pos = array_search($parameter, $this->mandatoryParameters);
+                    unset($this->mandatoryParameters[$pos]);
+                }
+
+                $this->parameters[$parameter] = $parameterValue;
+            }
+
+        }
+
+        if (!empty($this->mandatoryParameters)) {
+            return [422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.'];
+        }
+
+        $this->uri = implode('?', $uri);
+    }
+
 }

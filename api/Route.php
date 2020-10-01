@@ -23,8 +23,8 @@ class Route
 
         switch ($endpoint) {
             case 'search':
-                $search = new Search($this->uri);
-                return $search->getResponse($method);
+                $search = new Search();
+                return $search->getResponse($method, $this->uri);
                 break;
             default:
                 return [404];
