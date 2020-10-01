@@ -2,7 +2,7 @@
 
 class Search
 {
-    private $mandatoryParameters = ['keyword'];
+    private $mandatoryParameters = ['q'];
     private $uri;
     private $parameters = [];
 
@@ -30,8 +30,8 @@ class Search
                 Http::response(422, 'Os parâmetros ['. implode(',', $this->mandatoryParameters) .'] são obrigatórios.');
             }
 
-            if (strlen($parameterValue) < 3 && $parameter == 'keyword') {
-                Http::response(422, 'O parâmetro keyword deve conter no mínimo três caracteres.');
+            if (strlen($parameterValue) < 3 && $parameter == 'q') {
+                Http::response(422, 'O parâmetro "q" deve conter no mínimo três caracteres.');
             }
 
             $this->parameters[$parameter] = $parameterValue;
@@ -44,30 +44,43 @@ class Search
     {
         switch ($method) {
             case 'GET':
+                $youtube = new Youtube();
+                $response = $youtube->search($this->parameters);
+                $tt = http_response_code();
 
-                $curl = curl_init();
-                curl_setopt_array($curl, array(
-                  CURLOPT_URL => "https://www.googleapis.com/youtube/v3/search?key=AIzaSyC0cg9KQgSg4oYeQLBrCnn60J1nQLRYoZc&maxResults=10&part=snippet&chart=mostPopular&q=php",
-                  CURLOPT_RETURNTRANSFER => true,
-                  CURLOPT_ENCODING => "",
-                  CURLOPT_MAXREDIRS => 10,
-                  CURLOPT_TIMEOUT => 0,
-                  CURLOPT_FOLLOWLOCATION => true,
-                  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                  CURLOPT_CUSTOMREQUEST => "GET",
-                ));
-
-                $response = curl_exec($curl);
-                curl_close($curl);
-
-                $tt = json_decode($response, true);
-
-                if ($tt['error']) {
-                    Http::response($tt['error']['code'], $tt['error']['message']);
+                if (isset($response['error'])) {
+                    Http::response($response['error']['code'], $response['error']['message']);
                 }
 
-                /* parei aqui */
-                Http::_200($response);
+                if (empty($response['items'])) {
+                    Http::response(204);
+                }
+
+                $newResponse = [];
+                foreach ($response['items'] as $item) {
+                    $snippet = $item['snippet'];
+
+                    $arrayResponse['publishedAt'] = $snippet['publishedAt'];
+
+                    if (isset($item['id']['videoId'])) {
+                        $arrayResponse['videoId'] = $item['id']['videoId'];
+                    } else {
+                        $arrayResponse['channelId'] = $item['id']['channelId'];
+                    }
+
+                    $arrayResponse['title'] = $snippet['title'];
+                    $arrayResponse['description'] = $snippet['description'];
+                    $arrayResponse['thumbnail'] = $snippet['thumbnails']['high']['url'];
+                    $arrayResponse['extra'] = [
+                        'linkVideo' => isset($item['id']['videoId']) ? 'https://www.youtube.com/watch?v=' . $item['id']['videoId'] : '',
+                        'linkChannel' => 'https://www.youtube.com/channel/' . $snippet['channelId'],
+                        'publishTime' => $snippet['publishTime']
+                    ];;
+
+                    array_push($newResponse, $arrayResponse);
+                }
+
+                Http::response(200, $newResponse);
             break;
 
             default:
