@@ -12,11 +12,11 @@ Uma api de endpoint único, com a objetivo de listar os dez vídeos mais popular
 - `PHPUnit`
 
 ## Instalação
-- ### 1. Clonar o repositório
+- #### 1. Clonar o repositório
 ```
    $ git clone https://github.com/felipenaf/endpointYT
 ```
-- ### 2. Instalação de pacote
+- #### 2. Instalação de pacote
 ```
     $ composer install
 ```
