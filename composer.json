@@ -3,5 +3,9 @@
 		"classmap": [
 			"api/"
 		]
-	}
+    },
+
+	"require-dev": {
+        "phpunit/phpunit": "^7"
+    }
 }
