@@ -21,12 +21,16 @@ Uma api de endpoint único, com a objetivo de listar os dez vídeos mais popular
     $ composer install
 ```
 ## Observações
-- #### 1. Endpoints
+- #### 1. API Key
+    Será necessário informar uma chave para poder acessar a API.
+    Na pasta `/config` tem um arquivo chamado `youtube.ini.sample`. Será necessário criar uma cópia desse arquivo com o nome `youtube.ini` e nele passar a chave que você encontra em [Youtube Credentials](https://console.developers.google.com/apis/credentials)
+
+- #### 2. Endpoints e Parâmetros
+    (*) Parâmetros obrigatórios
     | Endpoint | Param #1 | Param #2 |
     | :---: | :---: | :---: |
     | search | q (*) | channelId |
-    (*) Parâmetros obrigatórios
-- #### 2. Parâmetros
+    ---
     | Parâmetro |Tipo| Pode Vazio | Tamanho mínimo |
     | :---: | :---: | :---: | :---: |
     | q |string| não | 3 |
